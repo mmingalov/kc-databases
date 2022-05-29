@@ -1,0 +1,7 @@
+
+--сценарии выполнения  в psql
+\copy nation from 'c:\temp\nation.txt' with delimiter '|';
+\copy region from 'c:\temp\region.txt' with delimiter '|';
+\copy part from 'c:\temp\part.txt' with delimiter '|';
+\copy supplier from 'c:\temp\supplier.txt' with delimiter '|';
+\copy partsupp from 'c:\temp\partsupp.txt' with delimiter '|';

@@ -1,0 +1,47 @@
+/*
+В базе karpovcourses в таблице public.buowl_habitat находятся данные по зонам обитания диких животных.
+ 
+При помощи функции st_area (geometry) которая вычисляет площадь геометрической фигуры упорядочите первые 5 записей (по habitat_id) по возрастанию площади. В ответе нужен получившийся порядок habitat_id.
+*/
+SELECT st_area(geom) SQUARE, gid, postgis_fi, habitat, hist_occup, recentstat, habitat_id, geom
+FROM public.buowl_habitat
+where habitat_id in (1,2,3,4,5)
+order by SQUARE asc;
+
+
+/*
+В таблице public.linear_projects находятся данные о коммуникациях.
+Используя функцию st_intersects(geometry,geometry) , определите сколько пересечений есть между объектами этой таблицы.
+*/
+
+;with T as (
+select gid,geom
+from public.linear_projects
+)
+
+select lp1.geom, lp2.geom,ST_Intersects(lp1.geom,lp2.geom),lp1.gid, lp2.gid
+FROM T lp1, T lp2 
+where ST_Intersects(lp1.geom,lp2.geom) = True and lp1.gid != lp2.gid
+--и результат делим пополам, потому что сочетаний в 2 раза меньше
+
+/*
+При помощи операторов to_tsquery и to_tsvector (https://docs.greenplum.org/6-16/admin_guide/textsearch/tables-indexes.html) определите во скольких текстах статей (body) упоминается авиакомпания Ryanair.
+*/
+select body,to_tsvector(body) @@ to_tsquery('Ryanair') Count1
+FROM public.articles;
+
+
+/*
+При помощи функции ts_rank(tsvector,tsquery) отранжируйте статьи по телу статьи для слова airline. Какая статья оказалась первой (у какой ранг больше всех)?
+*/
+select heading,ts_rank(to_tsvector(body),to_tsquery('airline')) Rank1
+FROM public.articles
+order by Rank1 desc;
+
+/*
+При помощи функции ts_headline (text,tsquery) подсветите в статьях упоминания авиакомпаний Ryanair и/или Wizz.
+В какой статье встретилось упоминание обеих авиакомпаний?
+*/
+select heading,body,ts_headline(body,to_tsquery('Ryanair')||to_tsquery('Wizz')) Result
+FROM public.articles;
+
